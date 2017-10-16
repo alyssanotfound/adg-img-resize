@@ -11,19 +11,18 @@ from PIL import Image
 # size = (235,157)
 print("~ starting script ~")
 directory = "original_images"
-thumbdir = "thumbnails"
-carouseldir = "carousel_images"
+
 desired_w = int(sys.argv[1])
 desired_h = int(sys.argv[2])
+outputdirectory = sys.argv[3]
 print("desired width: ", desired_w, "desired height: ", desired_h)
 
-if not os.path.exists(thumbdir):
-    os.makedirs(thumbdir)
-if not os.path.exists(carouseldir):
-    os.makedirs(carouseldir)
+if not os.path.exists(outputdirectory):
+    os.makedirs(outputdirectory)
+
 
 for infile in os.listdir(directory):
-    outfile = thumbdir + "/" + os.path.splitext(infile)[0] + "-thumbnail.png"
+    outfile = outputdirectory + "/" + os.path.splitext(infile)[0] + "-" + outputdirectory + ".png"
     print(infile)
     # print(outfile)
     if infile != outfile:
