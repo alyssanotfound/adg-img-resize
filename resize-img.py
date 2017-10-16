@@ -1,7 +1,7 @@
 # format images for Alyssa Davis Gallery 
 # run script in a directory that contains a directory called "original_images"
 # with all original images inside. these won't be deleted
-# run python resize-img.py width height
+# run python resize-img.py [width] [height] [type, ex. thumbnails] 
 
 from __future__ import print_function
 from __future__ import division
