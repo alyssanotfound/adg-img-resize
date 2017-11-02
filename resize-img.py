@@ -22,7 +22,8 @@ if not os.path.exists(outputdirectory):
 
 
 for infile in os.listdir(directory):
-    outfile = outputdirectory + "/" + os.path.splitext(infile)[0] + "-" + outputdirectory + ".png"
+    outfile = outputdirectory + "/James-" + os.path.splitext(infile)[0] + "-" + outputdirectory + ".png"
+    # outfile = outputdirectory + "/" + "James-Aidoo" + "-" + outputdirectory + ".png"
     print(infile)
     # print(outfile)
     if infile != outfile:
@@ -39,8 +40,8 @@ for infile in os.listdir(directory):
                 final_img = im
                 final_img.thumbnail((new_width, new_height), Image.ANTIALIAS)
             else:   
-                if width > height:
-                    print("width greater than height")
+                if (round(width/height,1)) > round(desired_w/desired_h, 1):
+                    print("add transparency top and bottom")
                     new_width = desired_w
                     new_height = int(round(new_width/(width/height)))
                     print("new h: ", new_height) 
@@ -51,8 +52,19 @@ for infile in os.listdir(directory):
                     print('new height with transparency:', transparent_h+new_height+transparent_h)
                     if (transparent_h+new_height+transparent_h) != desired_h:
                         print('height doesnt match')
-                elif width <= height:
-                    print("height greater than width")
+                # elif width > height & ((width/height) < round(desired_w/desired_h, 1)):
+                #     print("width greater than height and aspect ratio greater than desired")
+                #     new_height = desired_h
+                #     new_width = int(round((width/height)*new_height))
+                #     transparent_h = desired_h
+                #     transparent_w = (desired_w - new_width)/2
+                #     transparent_w = int(round(transparent_w))
+                #     print("new height w transparency", new_height)
+                #     print('new width w transparency:', transparent_w+new_width+transparent_w)
+                #     if (transparent_w+new_width+transparent_w) != desired_w:
+                #         print('height doesnt match')
+                elif (round(width/height,1)) < round(desired_w/desired_h, 1):
+                    print("add transparency left and right")
                     new_height = desired_h
                     new_width = int(round((width/height)*new_height))
                     transparent_h = desired_h
@@ -66,8 +78,9 @@ for infile in os.listdir(directory):
                 size = (new_width, new_height)
                 print("size of resized img: ", size)
                 im.thumbnail(size)
-                im.save(outfile, "PNG")
 
+                im.save("temp.png", "PNG")
+                print(map(Image.open, ["temp.png"]))
                 # make transparent images
                 transparent_box = Image.new('RGBA', (transparent_w,transparent_h), (0,0,0,0))
                 t_box_path = os.path.splitext(infile)[0] + "-t-box.png"
@@ -75,13 +88,14 @@ for infile in os.listdir(directory):
                 print("transparent_box: ", transparent_box)
 
                 # concatenate images
-                images = map(Image.open, [t_box_path, outfile, t_box_path])
+                images = map(Image.open, [t_box_path, "temp.png", t_box_path])
                 print("images: ", images)
 
                 os.remove(t_box_path)
                 widths, heights = zip(*(i.size for i in images))
 
-                if width > height:
+                if (round(width/height,1)) > round(desired_w/desired_h, 1):
+                    print("vertical concat")
                     total_height = sum(heights)
                     max_width = max(widths)
                     final_img = Image.new('RGBA', (max_width, total_height))
@@ -90,7 +104,8 @@ for infile in os.listdir(directory):
                     for im in images:
                       final_img.paste(im, (y_offset,0))
                       y_offset += im.size[1]
-                elif width <= height:
+                elif (round(width/height,1)) < round(desired_w/desired_h, 1):
+                    print("horizontal concat")
                     total_width = sum(widths)
                     max_height = max(heights)
                     final_img = Image.new('RGBA', (total_width, max_height))
@@ -99,7 +114,7 @@ for infile in os.listdir(directory):
                       final_img.paste(im, (x_offset,0))
                       x_offset += im.size[0]
 
-            print(final_img.size)
+            print("final image size: ", final_img.size)
             final_img.save(outfile, 'PNG')
             
         except IOError:
