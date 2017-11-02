@@ -7,6 +7,7 @@ from __future__ import print_function
 from __future__ import division
 import os, sys
 from PIL import Image
+import pexif
 
 # size = (235,157)
 print("~ starting script ~")
@@ -22,7 +23,39 @@ if not os.path.exists(outputdirectory):
 
 
 for infile in os.listdir(directory):
-    outfile = outputdirectory + "/James-" + os.path.splitext(infile)[0] + "-" + outputdirectory + ".png"
+    print(infile)
+    try:
+        #check orientation and reset
+        img = pexif.JpegFile.fromFile(directory +"/" + infile)
+        print(img)
+        orientation = img.exif.primary.Orientation[0]
+        print("orientation: ", orientation)
+        img.exif.primary.Orientation = [1] 
+        
+        img.writeFile(directory +"/" + infile)
+
+        #now rotate the image using the Python Image Library (PIL)
+        img = Image.open(directory +"/" + infile)
+        if orientation is 6: 
+            print("orientation is 6, rotate")
+            img = img.rotate(-90, expand=True)
+        elif orientation is 8: 
+            img = img.rotate(90, expand=True)
+        elif orientation is 3: 
+            img = img.rotate(180)
+        elif orientation is 2: 
+            img = img.transpose(Image.FLIP_LEFT_RIGHT)
+        elif orientation is 5: 
+            img = img.rotate(-90).transpose(Image.FLIP_LEFT_RIGHT)
+        elif orientation is 7: 
+            img = img.rotate(90).transpose(Image.FLIP_LEFT_RIGHT)
+        elif orientation is 4: 
+            img = img.rotate(180).transpose(Image.FLIP_LEFT_RIGHT)
+
+        #save the result
+        img.save(directory +"/" + infile)
+    except: pass
+    outfile = outputdirectory + "/" + os.path.splitext(infile)[0] + "-" + outputdirectory + ".png"
     # outfile = outputdirectory + "/" + "James-Aidoo" + "-" + outputdirectory + ".png"
     print(infile)
     # print(outfile)
